@@ -1,3 +1,5 @@
+"use strict";
+
 let pictionary = () => {
     let canvas, context;
     
