@@ -1,6 +1,9 @@
 "use strict";
 
 let pictionary = () => {
+    
+    let socket = io();
+    
     let canvas, context;
     
     let draw = (position) => {
@@ -10,6 +13,8 @@ let pictionary = () => {
         context.arc(position.x, position.y, 6, 0, 2 * Math.PI);
         // Fill in the path with solid black circle
         context.fill();
+        // Send this event upstream to the Socket.IO server
+        socket.emit('draw', position);
     };
     
     canvas = $('canvas');
