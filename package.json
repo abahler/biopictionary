@@ -1,0 +1,20 @@
+{
+  "name": "pictionary",
+  "version": "1.0.0",
+  "description": "A real-time pictionary game!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pictionary",
+    "realtime",
+    "chat"
+  ],
+  "author": "Alex Bahler",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.1",
+    "socket.io": "^1.7.2"
+  }
+}
