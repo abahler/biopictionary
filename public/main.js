@@ -3,6 +3,7 @@
 let pictionary = () => {
     
     let socket = io();
+    let drawing = false;
     
     let canvas, context;
     
@@ -26,7 +27,8 @@ let pictionary = () => {
     canvas[0].height = canvas[0].offsetHeight;
     
     // Handler callback gets an event object
-    canvas.on('mousemove', (ev) => {
+    canvas.on('mousedown', (ev) => {
+        drawing = true;
         // Grab the current offset
         let offset = canvas.offset();
         
@@ -38,6 +40,13 @@ let pictionary = () => {
             y: ev.pageY - offset.top
         };
         draw(newPosition);
+    
+    });
+
+    // BUG: can't "drag and draw". Have to click repeatedly in a line to form a sequence of dots. 
+    // Doesn't work if I move this block within 'mousedown' event handler.
+    canvas.on('mouseup', () => {
+        drawing = false;
     });
     
     // Listen for events emit from server.js
