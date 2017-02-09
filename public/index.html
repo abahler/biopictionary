@@ -34,6 +34,12 @@ canvas {
     display: block;
     margin: 0 auto;
 }
+
+/*
+#guess {
+    display: none;
+}
+*/
 </style>
 
 <!-- JS -->
@@ -44,6 +50,11 @@ canvas {
 
 <div id="main">
     <h1>Pictionary</h1>
+    <div id="top-message">
+        <div id="guess">
+            Make a guess: <input type="text" />
+        </div>
+    </div>
     <!-- Create a blank canvas for our pictures -->
     <canvas id="canvas"></canvas>
 </div>
