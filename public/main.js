@@ -5,7 +5,7 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let canvas, context;
+    let canvas, context, guessBox;
     
     let draw = (position) => {
         // Alert `context` to the fact that we're beginning to draw a new object
@@ -48,6 +48,19 @@ let pictionary = () => {
     canvas.on('mouseup', () => {
         drawing = false;
     });
+    
+    // Guessbox handlers
+    let logEnteredVal = (e) => {
+        if (e.keyCode != 13) {
+            return;
+        }  
+        
+        console.log('GuessBox value: ', guessBox.val());
+        guessBox.val('');   
+    };
+    
+    guessBox = $('#guess input');       // Should this be moved before the onKeyDown function expression?
+    guessBox.on('keydown', logEnteredVal);
     
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
