@@ -40,6 +40,11 @@ let pictionary = () => {
         draw(newPosition);
     });
     
+    // Listen for events emit from server.js
+    socket.on('draw', (receivedPosition) => {
+        draw(receivedPosition);
+    });
+    
 };
 
 // Included where jquery is, so ignore the '$ is not defined' error in IDE
