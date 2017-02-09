@@ -18,6 +18,10 @@ io.on('connect', (socket) => {
         // Emit out to all other clients
         socket.broadcast.emit('draw', position);
     });
+    
+    socket.on('guess', (theGuess) => {
+        socket.broadcast.emit('guess', theGuess);
+    });
 });
 
 server.listen(process.env.PORT || 8080);

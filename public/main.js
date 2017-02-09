@@ -54,8 +54,10 @@ let pictionary = () => {
         if (e.keyCode != 13) {
             return;
         }  
-        
-        console.log('GuessBox value: ', guessBox.val());
+    
+        let currentGuess = guessBox.val();    
+        console.log('GuessBox value: ', currentGuess);
+        socket.emit('guess', currentGuess);
         guessBox.val('');   
     };
     
