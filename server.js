@@ -10,8 +10,17 @@ app.use(express.static('public'));
 const server = http.Server(app);
 const io = socket_io(server);
 
+let users = [];     // Keep a list of all currently connected users
+let drawer;
+
 io.on('connect', (socket) => {
-    console.log('Client connected');
+    console.log('New client connected! Socket id: ', socket.id);
+    users.push(socket.id);
+    
+    // We know we'll always have at least one client at index 0, even if it's current socket.
+    drawer = users[0];
+    let userObj = {users: users, drawer: drawer};
+    io.emit('updateUsers', userObj);
     
     socket.on('draw', (position) => {
         console.log('Draw event received on server');  
@@ -27,7 +36,8 @@ io.on('connect', (socket) => {
         console.log(`A user has disconnected`);
         console.log('userThatLeft: ', userThatLeft);
         
-        // Don't need to fire this, because it causes a continuous loop that blows the stack
+        // TODO: broadcast an event that can be listened for, at which point the news feed can be updated
+        // But the following line appears to cause a continuous loop that blows the stack
         // socket.broadcast.emit('disconnect', userThatLeft);
     });
 });

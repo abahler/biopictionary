@@ -5,8 +5,31 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let thisUser;
-    let canvas, context, guessBox;
+    let users, drawer;              // Track users and 'draw' permission
+    let userList = $('#userList');
+    let canvas, context, guessBox;  // Track drawing
+
+    let updateUserList = (listOfUsers) => {
+        let listHTML = '';
+        listOfUsers.forEach( (v, i) => {
+            // Note that this doesn't automatically assume that the first user is the drawer.
+            // This makes it more flexible.
+            if (v === drawer) {
+                listHTML += `<li>${v} <b>(drawer)</b></li>`;
+            } else {
+                listHTML += `<li>${v}</li>`;    
+            }
+        });
+        userList.html(listHTML);
+    };
+    
+    let updateGuesses = (guesses) => {
+        let guessList = '';
+        guesses.forEach( (v, i) => {
+            guessList += `<li>${v}</li>`;
+        });
+        $('#guessDisplay ul').html(guessList);
+    };
     
     let draw = (position) => {
         // Alert `context` to the fact that we're beginning to draw a new object
@@ -17,14 +40,6 @@ let pictionary = () => {
         context.fill();
         // Send this event upstream to the Socket.IO server
         socket.emit('draw', position);
-    };
-    
-    let updateGuesses = (guesses) => {
-        let guessList = '';
-        guesses.forEach( (v, i) => {
-            guessList += `<li>${v}</li>`;
-        });
-        $('#guessDisplay ul').html(guessList);
     };
     
     canvas = $('canvas');
@@ -52,8 +67,6 @@ let pictionary = () => {
     
     });
 
-    // BUG: can't "drag and draw". Have to click repeatedly in a line to form a sequence of dots. 
-    // Doesn't work if I move this block within 'mousedown' event handler.
     canvas.on('mouseup', () => {
         drawing = false;
     });
@@ -72,6 +85,14 @@ let pictionary = () => {
     guessBox = $('#guess input');       // Should this be moved before the onKeyDown function expression?
     guessBox.on('keydown', logEnteredVal);
     
+    socket.on('updateUsers', (userObj) => {
+        users = userObj.users;
+        drawer = userObj.drawer;
+        
+        // Render list of users
+        updateUserList(users);
+    });
+    
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
         draw(receivedPosition);
@@ -81,6 +102,12 @@ let pictionary = () => {
     socket.on('guess', (theGuess) => {
         guesses.unshift(theGuess);
         updateGuesses(guesses);
+    });
+    
+    // TODO: improve this so it tells us which user left, and drops that into the news feed
+    socket.on('disconnect', (userThatLeft) => {
+        console.log('A disconnect event was received from the server!');
+        console.log('User that left: ', userThatLeft);
     });
     
 };
