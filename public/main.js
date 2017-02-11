@@ -5,7 +5,7 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let users, drawer;              // Track users and 'draw' permission
+    let users, drawer, mySocketId;              // Track users and 'draw' permission
     let userList = $('#userList');
     let canvas, context, guessBox;  // Track drawing
 
@@ -51,35 +51,41 @@ let pictionary = () => {
     canvas[0].height = canvas[0].offsetHeight;
     
     // Handler callback gets an event object
-    canvas.on('mousedown', (ev) => {
-        drawing = true;
-        // Grab the current offset
-        let offset = canvas.offset();
-        
-        let newPosition = {
-            // The subtractions get us the position of the mouse relative to the top-left of the canvas
-            // Top left is {x; 0, y: 0}. 
-            // Bottom right is total width and heigh in pixels (for x and y, respectively).
-            x: ev.pageX - offset.left,
-            y: ev.pageY - offset.top
-        };
-        draw(newPosition);
+    if (mySocketId == drawer) {
+        canvas.on('mousedown', (ev) => {
+                drawing = true;
+                // Grab the current offset
+                let offset = canvas.offset();
+                
+                let newPosition = {
+                    // The subtractions get us the position of the mouse relative to the top-left of the canvas
+                    // Top left is {x; 0, y: 0}. 
+                    // Bottom right is total width and heigh in pixels (for x and y, respectively).
+                    x: ev.pageX - offset.left,
+                    y: ev.pageY - offset.top
+                };
+                draw(newPosition);            
+        });
     
-    });
-
-    canvas.on('mouseup', () => {
-        drawing = false;
-    });
+        canvas.on('mouseup', () => {
+            drawing = false;
+        });        
+    } // No 'else' (like an alert to let user know they can't draw), because that would fire redundantly on mouseup
     
     // Guessbox handlers
     let logEnteredVal = (e) => {
-        if (e.keyCode != 13) {
-            return;
-        }  
-    
-        let currentGuess = guessBox.val();    
-        socket.emit('guess', currentGuess);
-        guessBox.val('');   
+        // Don't let the drawer make guesses
+        if (mySocketId !== drawer) {
+            if (e.keyCode != 13) {
+                return;
+            }  
+        
+            let currentGuess = guessBox.val();    
+            socket.emit('guess', currentGuess);
+            guessBox.val('');              
+        } else {
+            alert("You're the drawer! Sit back and let the others guess.");
+        }
     };
     
     guessBox = $('#guess input');       // Should this be moved before the onKeyDown function expression?
@@ -88,6 +94,7 @@ let pictionary = () => {
     socket.on('updateUsers', (userObj) => {
         users = userObj.users;
         drawer = userObj.drawer;
+        mySocketId = userObj.socketId;
         
         // Render list of users
         updateUserList(users);

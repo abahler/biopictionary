@@ -14,12 +14,18 @@ let users = [];     // Keep a list of all currently connected users
 let drawer;
 
 io.on('connect', (socket) => {
-    console.log('New client connected! Socket id: ', socket.id);
-    users.push(socket.id);
+    let socketId = socket.id;
+    console.log('New client connected! Socket id: ', socketId);
+    users.push(socketId);
     
     // We know we'll always have at least one client at index 0, even if it's current socket.
     drawer = users[0];
-    let userObj = {users: users, drawer: drawer};
+    let userObj = {
+        // ES2015 syntactic sugar for when property and value are identical
+        users, 
+        drawer, 
+        socketId
+    };
     io.emit('updateUsers', userObj);
     
     socket.on('draw', (position) => {
