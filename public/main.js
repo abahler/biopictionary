@@ -5,6 +5,7 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
+    let thisUser;
     let canvas, context, guessBox;
     
     let draw = (position) => {
