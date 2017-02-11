@@ -27,6 +27,12 @@ h1 {
     padding: 10px;
 }
 
+/*
+#newsFeed {
+    float: left;
+}
+*/
+
 #guessDisplay {
     float: left;
 }
@@ -38,12 +44,6 @@ canvas {
     display: block;
     margin: 0 auto;
 }
-
-/*
-#guess {
-    display: none;
-}
-*/
 </style>
 
 <!-- JS -->
@@ -58,6 +58,15 @@ canvas {
         <div id="guess">
             Make a guess: <input type="text" />
         </div>
+    </div>
+    <div id="newsFeed">
+        Updates from server: <ul>
+            <!--
+            <li>first update</li>
+            <li>subsequent update</li>
+            <li>latest update</li>
+            -->
+        </ul>
     </div>
     <div id="guessDisplay">
         Guesses: <ul>

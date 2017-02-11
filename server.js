@@ -22,6 +22,10 @@ io.on('connect', (socket) => {
     socket.on('guess', (theGuess) => {
         io.emit('guess', theGuess);         // Emit to all clients
     });
+    
+    socket.on('disconnect', () => {
+        console.log('A user has disconnected');
+    });
 });
 
 server.listen(process.env.PORT || 8080);
