@@ -4,11 +4,11 @@ const http = require('http');
 const express = require('express');
 const socket_io = require('socket.io');
 
-let app = express();
+const app = express();
 app.use(express.static('public'));
 
-let server = http.Server(app);
-var io = socket_io(server);
+const server = http.Server(app);
+const io = socket_io(server);
 
 io.on('connect', (socket) => {
     console.log('Client connected');
