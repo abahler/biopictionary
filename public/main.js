@@ -18,6 +18,14 @@ let pictionary = () => {
         socket.emit('draw', position);
     };
     
+    let updateGuesses = (guesses) => {
+        let guessList = '';
+        guesses.forEach( (v, i) => {
+            guessList += `<li>${v}</li>`;
+        });
+        $('#guessDisplay ul').html(guessList);
+    };
+    
     canvas = $('canvas');
     // Create drawing context for the canvas. This object allows us to draw graphics.
     context = canvas[0].getContext('2d');       
@@ -56,7 +64,6 @@ let pictionary = () => {
         }  
     
         let currentGuess = guessBox.val();    
-        console.log('GuessBox value: ', currentGuess);
         socket.emit('guess', currentGuess);
         guessBox.val('');   
     };
@@ -67,6 +74,12 @@ let pictionary = () => {
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
         draw(receivedPosition);
+    });
+    
+    let guesses = [];
+    socket.on('guess', (theGuess) => {
+        guesses.unshift(theGuess);
+        updateGuesses(guesses);
     });
     
 };

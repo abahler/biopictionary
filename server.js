@@ -20,7 +20,7 @@ io.on('connect', (socket) => {
     });
     
     socket.on('guess', (theGuess) => {
-        socket.broadcast.emit('guess', theGuess);
+        io.emit('guess', theGuess);         // Emit to all clients
     });
 });
 

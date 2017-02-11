@@ -27,6 +27,10 @@ h1 {
     padding: 10px;
 }
 
+#guessDisplay {
+    float: left;
+}
+
 canvas {
     width: 800px;
     height: 600px;
@@ -54,6 +58,11 @@ canvas {
         <div id="guess">
             Make a guess: <input type="text" />
         </div>
+    </div>
+    <div id="guessDisplay">
+        Guesses: <ul>
+            <!-- guesses should be an array, and newest guess should be pushed onto the front -->
+        </ul>
     </div>
     <!-- Create a blank canvas for our pictures -->
     <canvas id="canvas"></canvas>
