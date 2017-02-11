@@ -23,8 +23,12 @@ io.on('connect', (socket) => {
         io.emit('guess', theGuess);         // Emit to all clients
     });
     
-    socket.on('disconnect', () => {
-        console.log('A user has disconnected');
+    socket.on('disconnect', (userThatLeft) => {
+        console.log(`A user has disconnected`);
+        console.log('userThatLeft: ', userThatLeft);
+        
+        // Don't need to fire this, because it causes a continuous loop that blows the stack
+        // socket.broadcast.emit('disconnect', userThatLeft);
     });
 });
 
