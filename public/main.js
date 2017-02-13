@@ -53,7 +53,6 @@ let pictionary = () => {
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
         if (mySocketId == drawer) {
-            console.log('you are the drawer!');
             drawing = true;
             // Grab the current offset
             let offset = canvas.offset();
@@ -107,10 +106,13 @@ let pictionary = () => {
     });
     
     socket.on('chooseWord', (wordChoices) => {
-        console.log('the chooseWord event was received from the server');
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
-        console.log(`Drawer, your word is: '${word}'.`);
+        
+        if (mySocketId == drawer) {
+           let txt = `<p>Your word is:<br><b>${word}</b></p>`;
+           $('#currentWord').html(txt);
+        }
     });
     
     // Listen for events emit from server.js
