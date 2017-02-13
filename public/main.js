@@ -51,26 +51,32 @@ let pictionary = () => {
     canvas[0].height = canvas[0].offsetHeight;
     
     // Handler callback gets an event object
-    if (mySocketId == drawer) {
-        canvas.on('mousedown', (ev) => {
-                drawing = true;
-                // Grab the current offset
-                let offset = canvas.offset();
-                
-                let newPosition = {
-                    // The subtractions get us the position of the mouse relative to the top-left of the canvas
-                    // Top left is {x; 0, y: 0}. 
-                    // Bottom right is total width and heigh in pixels (for x and y, respectively).
-                    x: ev.pageX - offset.left,
-                    y: ev.pageY - offset.top
-                };
-                draw(newPosition);            
-        });
+    canvas.on('mousedown', (ev) => {
+        if (mySocketId == drawer) {
+            console.log('you are the drawer!');
+            drawing = true;
+            // Grab the current offset
+            let offset = canvas.offset();
+            
+            let newPosition = {
+                // The subtractions get us the position of the mouse relative to the top-left of the canvas
+                // Top left is {x; 0, y: 0}. 
+                // Bottom right is total width and heigh in pixels (for x and y, respectively).
+                x: ev.pageX - offset.left,
+                y: ev.pageY - offset.top
+            };
+            draw(newPosition);             
+        } else {
+            alert('You are not the drawer, but you can venture a guess in the box above.');
+        }
+    });
     
-        canvas.on('mouseup', () => {
-            drawing = false;
-        });        
-    } // No 'else' (like an alert to let user know they can't draw), because that would fire redundantly on mouseup
+    canvas.on('mouseup', () => {
+        if (mySocketId == drawer) {
+            drawing = false;    
+        }
+    });        
+
     
     // Guessbox handlers
     let logEnteredVal = (e) => {
@@ -95,7 +101,7 @@ let pictionary = () => {
         users = userObj.users;
         drawer = userObj.drawer;
         mySocketId = userObj.socketId;
-        
+
         // Render list of users
         updateUserList(users);
     });
