@@ -106,6 +106,13 @@ let pictionary = () => {
         updateUserList(users);
     });
     
+    socket.on('chooseWord', (wordChoices) => {
+        console.log('the chooseWord event was received from the server');
+        let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
+        let word = wordChoices[randomChoice];
+        console.log(`Drawer, your word is: '${word}'.`);
+    });
+    
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
         draw(receivedPosition);

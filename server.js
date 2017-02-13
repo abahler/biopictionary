@@ -28,6 +28,23 @@ io.on('connect', (socket) => {
     };
     io.emit('updateUsers', userObj);
     
+    // If user is drawer, show list of words and have them pick.
+    let words = [
+        "closer", "farm", "computer", "god", "sun", "shoe", "trick", 
+        "skateboard", "anarchy", "crow", "angel", "priest", "picture", 
+        "doppelganger", "autobiography", "beach", "war", "peace", "neighborhood",
+        "dynasty", "blueprint", "animal", "machine", "goat", "cherry", 
+        "butcher", "death", "life", "rifle", "cinema", "necklace", "prince",
+        "pool", "evil", "monster", "up", "music", "wave", "metal", "reptile", 
+        "wire", "lemon", "love", "kite", "cowboy", "whiskey", "forever", 
+        "day", "night", "alien", "hacker", "enemy", "government"
+    ];
+    
+    if (socketId == drawer) {
+        console.log('Drawer connected');
+        socket.emit('chooseWord', words);
+    }
+    
     socket.on('draw', (position) => {
         console.log('Draw event received on server');  
         // Emit out to all other clients
