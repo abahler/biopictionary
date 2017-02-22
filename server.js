@@ -55,13 +55,20 @@ io.on('connect', (socket) => {
         io.emit('guess', theGuess);         // Emit to all clients
     });
     
-    socket.on('disconnect', (userThatLeft) => {
+    socket.on('disconnect', (e) => {
         console.log(`A user has disconnected`);
-        console.log('userThatLeft: ', userThatLeft);
+        // console.log(e);          // transport close
+        // console.log(typeof e);   // "string"
+        
         
         // TODO: broadcast an event that can be listened for, at which point the news feed can be updated
         // But the following line appears to cause a continuous loop that blows the stack
         // socket.broadcast.emit('disconnect', userThatLeft);
+    });
+    
+    socket.on('disconnectFromClient', (d) => {
+        console.log('disconnectFromClient event received');
+        console.log('d: ', d);
     });
 });
 

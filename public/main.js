@@ -127,9 +127,9 @@ let pictionary = () => {
     });
     
     // TODO: improve this so it tells us which user left, and drops that into the news feed
-    socket.on('disconnect', (userThatLeft) => {
+    socket.on('disconnect', () => {
         console.log('A disconnect event was received from the server!');
-        console.log('User that left: ', userThatLeft);
+        socket.emit('disconnectFromClient', 'foobar');
     });
     
 };
