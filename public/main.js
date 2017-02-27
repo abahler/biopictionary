@@ -5,9 +5,32 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let users, drawer, mySocketId;              // Track users and 'draw' permission
-    let userList = $('#userList');
-    let canvas, context, guessBox;  // Track drawing
+    let users, drawer, mySocketId;      // Track users and 'draw' permission
+    let canvas, context, guessBox;      // Track drawing
+  
+    // Note we don't have a variable to store the word the drawer is using to draw the picture.
+    // Clients don't (shouldn't?) need to know that, so we'll ping the server with each guess to test if it's right.
+    
+    // Get list elements from the DOM
+    let userList = $('#userList ul');
+    let newsFeed = $('#newsFeed ul');
+    let guessList = $('#guessDisplay ul')
+    
+    // Create containers for lists
+    let newsFeedItems = [];
+    let guesses = []; 
+
+    // TODO: rewrite the UI-updating functions to take a single item instead of a full list each time
+    // This is probably more efficient
+    // Could also abstract these three functions since they do the exact same thing.
+
+    let updateNewsFeed = (newsItems) => {
+        let refreshedFeed = '';
+        newsItems.forEach( (v, i) => {
+            refreshedFeed += `<li>${v}</li>`;
+        });
+        newsFeed.html(refreshedFeed);  
+    };
 
     let updateUserList = (listOfUsers) => {
         let listHTML = '';
@@ -24,11 +47,11 @@ let pictionary = () => {
     };
     
     let updateGuesses = (guesses) => {
-        let guessList = '';
+        let newList = '';
         guesses.forEach( (v, i) => {
-            guessList += `<li>${v}</li>`;
+            newList += `<li>${v}</li>`;
         });
-        $('#guessDisplay ul').html(guessList);
+        guessList.html(newList);
     };
     
     let draw = (position) => {
@@ -65,9 +88,10 @@ let pictionary = () => {
                 y: ev.pageY - offset.top
             };
             draw(newPosition);             
-        } else {
+        } 
+        /*else {
             alert('You are not the drawer, but you can venture a guess in the box above.');
-        }
+        }*/
     });
     
     canvas.on('mouseup', () => {
@@ -76,7 +100,6 @@ let pictionary = () => {
         }
     });        
 
-    
     // Guessbox handlers
     let logEnteredVal = (e) => {
         // Don't let the drawer make guesses
@@ -109,9 +132,15 @@ let pictionary = () => {
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
         
+        // Since the 'chooseWord' event is emitted after a guesser picks the right word and gets reset as drawer, 
+        // this event should work for the initial drawer as well as all subsequent ones
         if (mySocketId == drawer) {
            let txt = `<p>Your word is:<br><b>${word}</b></p>`;
            $('#currentWord').html(txt);
+           
+           // Send up to the server, so the server can broadcast it to the guessers
+           // That way, each client can know if the word is the 
+           socket.emit('setCurrentWord', word);
         }
     });
     
@@ -120,10 +149,18 @@ let pictionary = () => {
         draw(receivedPosition);
     });
     
-    let guesses = [];
     socket.on('guess', (theGuess) => {
         guesses.unshift(theGuess);
         updateGuesses(guesses);
+    });
+    
+    socket.on('correctWordGuessed', (res) => {
+        // Reset the drawer
+        drawer = res.newDrawer;
+
+        // Notify room that <user> made the correct guess of <word>
+        newsFeedItems.push(`${drawer} made the correct guess! The word was ${res.correctWord}. ${drawer}, you're up!`);
+        updateNewsFeed(newsFeedItems);
     });
     
     // TODO: improve this so it tells us which user left, and drops that into the news feed

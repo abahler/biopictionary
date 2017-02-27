@@ -12,6 +12,7 @@ const io = socket_io(server);
 
 let users = [];     // Keep a list of all currently connected users
 let drawer;
+let currentWord;
 
 io.on('connect', (socket) => {
     let socketId = socket.id;
@@ -51,15 +52,33 @@ io.on('connect', (socket) => {
         socket.broadcast.emit('draw', position);
     });
     
+    socket.on('setCurrentWord', (word) => {
+        currentWord = word;
+    });
+    
     socket.on('guess', (theGuess) => {
+        // Update the list of guesses every time...
         io.emit('guess', theGuess);         // Emit to all clients
+        
+        // ...But perform an extra check to see if the user entered the correct word
+        if (theGuess == currentWord) {
+            // User is now drawer
+            drawer = socketId;
+            
+            // Notify room that correct word was guessed
+            let responseObj = {newDrawer: socketId, correctWord: theGuess};
+            io.emit('correctWordGuessed', responseObj);
+            
+            // Give new drawer the new word
+            socket.emit('chooseWord', words);
+        }
+        
     });
     
     socket.on('disconnect', (e) => {
         console.log(`A user has disconnected`);
         // console.log(e);          // transport close
         // console.log(typeof e);   // "string"
-        
         
         // TODO: broadcast an event that can be listened for, at which point the news feed can be updated
         // But the following line appears to cause a continuous loop that blows the stack
