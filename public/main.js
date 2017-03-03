@@ -135,12 +135,11 @@ let pictionary = () => {
         // Since the 'chooseWord' event is emitted after a guesser picks the right word and gets reset as drawer, 
         // this event should work for the initial drawer as well as all subsequent ones
         if (mySocketId == drawer) {
-           let txt = `<p>Your word is:<br><b>${word}</b></p>`;
-           $('#currentWord').html(txt);
+            let txt = `<p>Your word is:<br><b>${word}</b></p>`;
+            $('#currentWord').html(txt);
            
-           // Send up to the server, so the server can broadcast it to the guessers
-           // That way, each client can know if the word is the 
-           socket.emit('setCurrentWord', word);
+            // Send up to the server, so the server can broadcast it to the guessers
+            socket.emit('setCurrentWord', word);
         }
     });
     
@@ -159,7 +158,7 @@ let pictionary = () => {
         drawer = res.newDrawer;
 
         // Notify room that <user> made the correct guess of <word>
-        newsFeedItems.push(`${drawer} made the correct guess! The word was ${res.correctWord}. ${drawer}, you're up!`);
+        newsFeedItems.push(`${drawer} made the correct guess! The word was <b>${res.correctWord}</b>. ${drawer}, you're up!`);
         updateNewsFeed(newsFeedItems);
     });
     
