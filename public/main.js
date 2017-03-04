@@ -126,6 +126,8 @@ let pictionary = () => {
 
         // Render list of users
         updateUserList(users);
+        
+        console.log('users: ', users);
     });
     
     socket.on('chooseWord', (wordChoices) => {
@@ -160,12 +162,6 @@ let pictionary = () => {
         // Notify room that <user> made the correct guess of <word>
         newsFeedItems.push(`${drawer} made the correct guess! The word was <b>${res.correctWord}</b>. ${drawer}, you're up!`);
         updateNewsFeed(newsFeedItems);
-    });
-    
-    // TODO: improve this so it tells us which user left, and drops that into the news feed
-    socket.on('disconnect', () => {
-        console.log('A disconnect event was received from the server!');
-        socket.emit('disconnectFromClient', 'foobar');
     });
     
 };
