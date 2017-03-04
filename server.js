@@ -1,5 +1,17 @@
 "use strict";
 
+/*
+TODO: 
+1. If the drawer disconnects before anyone has guessed the word, the code should designate the earliest connected user as the new drawer.
+    a. Detect disconnect, get id of user that disconnected
+    b. If id === drawer, set `drawer = users[0]` (since newer users get pushed onto the array)
+    c. Update news feed with a message to the effect of `The drawer ${id} disconnected! The new drawer is ${drawer}`
+
+2. If all guessers disconnect (so, all users minus the drawer), the drawing board should be disabled until someone connects again.
+    a. This requires task #1 to be done first, since that will update the users list.
+    b. Then, this will check the length of the list of users. If length === 1 (only the drawer)
+*/
+
 const http = require('http');
 const express = require('express');
 const socket_io = require('socket.io');
@@ -15,9 +27,23 @@ let drawer;
 let currentWord;
 
 io.on('connect', (socket) => {
-    let socketId = socket.id;
-    console.log('New client connected! Socket id: ', socketId);
-    users.push(socketId);
+    let currentUserId = socket.id;
+    console.log('New client connected! Socket id: ', currentUserId);
+    users.push(currentUserId);
+    console.log('Updated list of connected users: ', users);
+    
+    /*
+    // StackOverflow example. Use this instead of the above, to track users?
+    var userId;
+    socket.on('new player', function(id, name) {
+        userId = id = parseInt(id);
+        // ...
+    });
+    
+    socket.on('disconnect', function() {
+        delete playerList[userId];
+    });
+    */
     
     // We know we'll always have at least one client at index 0, even if it's current socket.
     drawer = users[0];
@@ -25,7 +51,7 @@ io.on('connect', (socket) => {
         // ES2015 syntactic sugar for when property and value are identical
         users, 
         drawer, 
-        socketId
+        currentUserId
     };
     io.emit('updateUsers', userObj);
     
@@ -41,7 +67,7 @@ io.on('connect', (socket) => {
         "day", "night", "alien", "hacker", "enemy", "government"
     ];
     
-    if (socketId == drawer) {
+    if (currentUserId == drawer) {
         console.log('Drawer connected');
         socket.emit('chooseWord', words);
     }
@@ -63,10 +89,10 @@ io.on('connect', (socket) => {
         // ...But perform an extra check to see if the user entered the correct word
         if (theGuess == currentWord) {
             // User is now drawer
-            drawer = socketId;
+            drawer = currentUserId;
             
             // Notify room that correct word was guessed
-            let responseObj = {newDrawer: socketId, correctWord: theGuess};
+            let responseObj = {newDrawer: currentUserId, correctWord: theGuess};
             io.emit('correctWordGuessed', responseObj);
             
             // Give new drawer the new word
@@ -77,17 +103,8 @@ io.on('connect', (socket) => {
     
     socket.on('disconnect', (e) => {
         console.log(`A user has disconnected`);
-        // console.log(e);          // transport close
+        // console.log(e);          // "transport close"
         // console.log(typeof e);   // "string"
-        
-        // TODO: broadcast an event that can be listened for, at which point the news feed can be updated
-        // But the following line appears to cause a continuous loop that blows the stack
-        // socket.broadcast.emit('disconnect', userThatLeft);
-    });
-    
-    socket.on('disconnectFromClient', (d) => {
-        console.log('disconnectFromClient event received');
-        console.log('d: ', d);
     });
 });
 
