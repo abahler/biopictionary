@@ -4,12 +4,14 @@
 TODO: 
 1. If the drawer disconnects before anyone has guessed the word, the code should designate the earliest connected user as the new drawer.
     a. Detect disconnect, get id of user that disconnected
-    b. If id === drawer, set `drawer = users[0]` (since newer users get pushed onto the array)
-    c. Update news feed with a message to the effect of `The drawer ${id} disconnected! The new drawer is ${drawer}`
+    b. Remove user id from `users` array
+    c. If id === drawer, set `drawer = users[0]` (since newer users get pushed onto the array)
+    d. Update news feed with a message to the effect of `The drawer ${id} disconnected! The new drawer is ${drawer}`
 
 2. If all guessers disconnect (so, all users minus the drawer), the drawing board should be disabled until someone connects again.
     a. This requires task #1 to be done first, since that will update the users list.
-    b. Then, this will check the length of the list of users. If length === 1 (only the drawer)
+    b. Then, this will check the length of the list of users. If length === 1 (only the drawer), then disable canvas.
+    c. On new connect, enable canvas.
 */
 
 const http = require('http');
@@ -102,9 +104,19 @@ io.on('connect', (socket) => {
     });
     
     socket.on('disconnect', (e) => {
-        console.log(`A user has disconnected`);
-        // console.log(e);          // "transport close"
-        // console.log(typeof e);   // "string"
+        console.log(`User ${currentUserId} has disconnected`);
+        // Remove current user from 'users' array
+        // (TODO)
+        let userObj = {
+            // ES2015 syntactic sugar for when property and value are identical
+            users, 
+            drawer, 
+            currentUserId
+        };
+        
+        // Update users again
+        io.emit('updateUsers', userObj);
+
     });
 });
 
