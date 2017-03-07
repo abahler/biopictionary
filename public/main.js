@@ -23,10 +23,6 @@ let pictionary = () => {
     let newsFeedItems = [];
     let guesses = []; 
 
-    // TODO: rewrite the UI-updating functions to take a single item instead of a full list each time
-    // This is probably more efficient
-    // Could also abstract these three functions since they do the exact same thing.
-
     let updateNewsFeed = (newsItems) => {
         let refreshedFeed = '';
         newsItems.forEach( (v, i) => {
@@ -141,7 +137,6 @@ let pictionary = () => {
         console.log('Event received: newClientDisconnect');
         users = userObj.users;
         drawer = userObj.drawer;
-        // let disconnectedUser = userObj.currentUserId;   // Don't need this in the global scope
         message = userObj.message;
         
         updateUserList(users);
