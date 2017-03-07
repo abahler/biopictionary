@@ -34,26 +34,17 @@ io.on('connect', (socket) => {
     users.push(currentUserId);
     console.log('Updated list of connected users: ', users);
     
-    /*
-    // StackOverflow example. Use this instead of the above, to track users?
-    var userId;
-    socket.on('new player', function(id, name) {
-        userId = id = parseInt(id);
-        // ...
-    });
-    
-    socket.on('disconnect', function() {
-        delete playerList[userId];
-    });
-    */
-    
-    // We know we'll always have at least one client at index 0, even if it's current socket.
+    // We know we'll always have at least one client at index 0, even if it's the current socket.
     drawer = users[0];
+    
+    let message = `User ${currentUserId} joined the game`;
+    
     let userObj = {
-        // ES2015 syntactic sugar for when property and value are identical
+        // ES2015 syntactic sugar for identical property/value names
         users, 
         drawer, 
-        currentUserId
+        currentUserId,
+        message
     };
     io.emit('updateUsers', userObj);
     
@@ -103,28 +94,33 @@ io.on('connect', (socket) => {
         
     });
     
-    socket.on('disconnect', (e) => {
+    socket.on('disconnect', () => {
         console.log(`User ${currentUserId} has disconnected`);
         
         // Rem ove current user from 'users' array
         let currentUserIndex = users.indexOf(currentUserId);
         users.splice(currentUserIndex, 1);
         
+        let message = '';
         if (currentUserId == drawer) {
+            console.log('The disconnected user was also the drawer!');
             // Reset drawer to earliest connected user
             drawer = users[0];
+            
+            message = `The drawer ${currentUserId} disconnected! Rude. ${drawer}, you are now the drawer.`;
+        } else {
+            message = `User ${currentUserId} left the game.`;
         }
         
         let userObj = {
-            // ES2015 syntactic sugar for when property and value are identical
             users, 
             drawer, 
-            currentUserId
+            currentUserId,
+            message
         };
         
         // Update users again
         io.emit('updateUsers', userObj);
-
     });
 });
 

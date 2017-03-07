@@ -5,8 +5,8 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let users, drawer, mySocketId;      // Track users and 'draw' permission
-    let canvas, context, guessBox;      // Track drawing
+    let users, drawer, mySocketId, message;     // Track users and 'draw' permission
+    let canvas, context, guessBox;              // Track drawing
   
     // Note we don't have a variable to store the word the drawer is using to draw the picture.
     // Clients don't (shouldn't?) need to know that, so we'll ping the server with each guess to test if it's right.
@@ -75,6 +75,7 @@ let pictionary = () => {
     
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
+        console.log('The canvas has detected a mousedown event');
         if (mySocketId == drawer) {
             drawing = true;
             // Grab the current offset
@@ -88,13 +89,13 @@ let pictionary = () => {
                 y: ev.pageY - offset.top
             };
             draw(newPosition);             
-        } 
-        /*else {
+        } else {
             alert('You are not the drawer, but you can venture a guess in the box above.');
-        }*/
+        }
     });
     
     canvas.on('mouseup', () => {
+        console.log('The canvas has detected a mouseup event');
         if (mySocketId == drawer) {
             drawing = false;    
         }
@@ -120,17 +121,23 @@ let pictionary = () => {
     guessBox.on('keydown', logEnteredVal);
     
     socket.on('updateUsers', (userObj) => {
+        console.log('updateUsers event received');
         users = userObj.users;
         drawer = userObj.drawer;
         mySocketId = userObj.socketId;
+        message = userObj.message;
 
         // Render list of users
-        updateUserList(users);
+        updateUserList(users, message);
+        newsFeedItems.push(message);
+        updateNewsFeed(newsFeedItems);
         
-        console.log('users: ', users);
+        console.log('userObj: ', userObj);
+        console.log('Are you the drawer?: ', (mySocketId === drawer ? 'yes' : 'no'))
     });
     
     socket.on('chooseWord', (wordChoices) => {
+        console.log('chooseWord event received');
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
         
@@ -147,15 +154,18 @@ let pictionary = () => {
     
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
+        console.log('draw event received');
         draw(receivedPosition);
     });
     
     socket.on('guess', (theGuess) => {
+        console.log('guess event received');
         guesses.unshift(theGuess);
         updateGuesses(guesses);
     });
     
     socket.on('correctWordGuessed', (res) => {
+        console.log('correctWordGuessed event received');
         // Reset the drawer
         drawer = res.newDrawer;
 
