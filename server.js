@@ -115,6 +115,7 @@ io.on('connect', (socket) => {
             message = `User ${currentUserId} left the game.`;
         }
         
+        // Client doesn't need to receive id of disconnected user outside of news feed message
         let userObj = {
             users, 
             drawer, 
