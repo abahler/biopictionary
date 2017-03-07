@@ -5,6 +5,9 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
+    console.log('Socket: ', socket);
+    console.log('Socket id: ', socket.id);
+    
     let users, drawer, mySocketId, message;     // Track users and 'draw' permission
     let canvas, context, guessBox;              // Track drawing
   
@@ -146,13 +149,16 @@ let pictionary = () => {
         updateNewsFeed(newsFeedItems);
         
         console.log('userObj: ', userObj);
+        console.log('New drawer: ', drawer);
         console.log('Remind me, who am I? ', mySocketId);
     });
     
     socket.on('chooseWord', (wordChoices) => {
         console.log('Event received: chooseWord');
+        console.log('word choices: ', wordChoices);
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
+        console.log('The word: ', word);
         
         // Since the 'chooseWord' event is emitted after a guesser picks the right word and gets reset as drawer, 
         // this event should work for the initial drawer as well as all subsequent ones
