@@ -124,7 +124,7 @@ let pictionary = () => {
         console.log('updateUsers event received');
         users = userObj.users;
         drawer = userObj.drawer;
-        mySocketId = userObj.socketId;
+        mySocketId = userObj.currentUserId;
         message = userObj.message;
 
         // Render list of users
@@ -133,7 +133,8 @@ let pictionary = () => {
         updateNewsFeed(newsFeedItems);
         
         console.log('userObj: ', userObj);
-        console.log('Are you the drawer?: ', (mySocketId === drawer ? 'yes' : 'no'))
+        console.log(mySocketId == drawer);
+        console.log('Are you the drawer?: ', (mySocketId == drawer ? 'yes' : 'no'))
     });
     
     socket.on('chooseWord', (wordChoices) => {
