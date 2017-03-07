@@ -36,7 +36,6 @@ let pictionary = () => {
         let listHTML = '';
         listOfUsers.forEach( (v, i) => {
             // Note that this doesn't automatically assume that the first user is the drawer.
-            // This makes it more flexible.
             if (v === drawer) {
                 listHTML += `<li>${v} <b>(drawer)</b></li>`;
             } else {
@@ -120,25 +119,38 @@ let pictionary = () => {
     guessBox = $('#guess input');       // Should this be moved before the onKeyDown function expression?
     guessBox.on('keydown', logEnteredVal);
     
-    socket.on('updateUsers', (userObj) => {
-        console.log('updateUsers event received');
+    socket.on('newClientConnect', (userObj) => {
+        console.log('Event received: newClientConnect');
         users = userObj.users;
         drawer = userObj.drawer;
         mySocketId = userObj.currentUserId;
         message = userObj.message;
 
         // Render list of users
-        updateUserList(users, message);
+        updateUserList(users);
         newsFeedItems.push(message);
         updateNewsFeed(newsFeedItems);
         
         console.log('userObj: ', userObj);
-        console.log(mySocketId == drawer);
-        console.log('Are you the drawer?: ', (mySocketId == drawer ? 'yes' : 'no'))
+    });
+    
+    socket.on('newClientDisconnect', (userObj) => {
+        console.log('Event received: newClientDisconnect');
+        users = userObj.users;
+        drawer = userObj.drawer;
+        // let disconnectedUser = userObj.currentUserId;   // Don't need this in the global scope
+        message = userObj.message;
+        
+        updateUserList(users);
+        newsFeedItems.push(message);
+        updateNewsFeed(newsFeedItems);
+        
+        console.log('userObj: ', userObj);
+        console.log('Remind me, who am I? ', mySocketId);
     });
     
     socket.on('chooseWord', (wordChoices) => {
-        console.log('chooseWord event received');
+        console.log('Event received: chooseWord');
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
         
@@ -155,18 +167,18 @@ let pictionary = () => {
     
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
-        console.log('draw event received');
+        console.log('Event received: draw');
         draw(receivedPosition);
     });
     
     socket.on('guess', (theGuess) => {
-        console.log('guess event received');
+        console.log('Event received: guess');
         guesses.unshift(theGuess);
         updateGuesses(guesses);
     });
     
     socket.on('correctWordGuessed', (res) => {
-        console.log('correctWordGuessed event received');
+        console.log('Event received: correctWordGuessed');
         // Reset the drawer
         drawer = res.newDrawer;
 
