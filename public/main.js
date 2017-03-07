@@ -2,11 +2,10 @@
 
 let pictionary = () => {
     
+    // Top-level variables
+    
     let socket = io();
     let drawing = false;
-    
-    console.log('Socket: ', socket);
-    console.log('Socket id: ', socket.id);
     
     let users, drawer, mySocketId, message;     // Track users and 'draw' permission
     let canvas, context, guessBox;              // Track drawing
@@ -22,6 +21,8 @@ let pictionary = () => {
     // Create containers for lists
     let newsFeedItems = [];
     let guesses = []; 
+    
+    // Event listeners and functions - client
 
     let updateNewsFeed = (newsItems) => {
         let refreshedFeed = '';
@@ -118,6 +119,8 @@ let pictionary = () => {
     guessBox = $('#guess input');       // Should this be moved before the onKeyDown function expression?
     guessBox.on('keydown', logEnteredVal);
     
+    // Event listeners - server
+    
     socket.on('newClientConnect', (userObj) => {
         console.log('Event received: newClientConnect');
         users = userObj.users;
@@ -131,6 +134,10 @@ let pictionary = () => {
         updateNewsFeed(newsFeedItems);
         
         console.log('userObj: ', userObj);
+    });
+    
+    socket.on('whoYouAre', (id) => {
+        mySocketId = id;
     });
     
     socket.on('newClientDisconnect', (userObj) => {
@@ -187,6 +194,9 @@ let pictionary = () => {
         newsFeedItems.push(`${drawer} made the correct guess! The word was <b>${res.correctWord}</b>. ${drawer}, you're up!`);
         updateNewsFeed(newsFeedItems);
     });
+    
+    // Emits on load
+    socket.emit('whoAmI');
     
 };
 

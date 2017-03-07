@@ -97,6 +97,11 @@ io.on('connect', (socket) => {
         }
     });
     
+    // Test method
+    socket.on('whoAmI', () => {
+        socket.emit('whoYouAre', currentUserId);
+    });
+    
     socket.on('disconnect', () => {
         console.log(`User ${currentUserId} has disconnected`);
         
