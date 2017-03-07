@@ -105,8 +105,16 @@ io.on('connect', (socket) => {
     
     socket.on('disconnect', (e) => {
         console.log(`User ${currentUserId} has disconnected`);
-        // Remove current user from 'users' array
-        // (TODO)
+        
+        // Rem ove current user from 'users' array
+        let currentUserIndex = users.indexOf(currentUserId);
+        users.splice(currentUserIndex, 1);
+        
+        if (currentUserId == drawer) {
+            // Reset drawer to earliest connected user
+            drawer = users[0];
+        }
+        
         let userObj = {
             // ES2015 syntactic sugar for when property and value are identical
             users, 
