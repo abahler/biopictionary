@@ -50,7 +50,7 @@ io.on('connect', (socket) => {
         currentUserId,
         message
     };
-    io.emit('newClientConnect', userObj);
+    socket.emit('newClientConnect', userObj);
     
     // If user is drawer, show list of words and have them pick.
     let words = [
