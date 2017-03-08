@@ -2,20 +2,10 @@
 
 /*
 TODO: 
-1. If the drawer disconnects before anyone has guessed the word, the code should designate the earliest connected user as the new drawer.
-    a. DONE - Detect disconnect, get id of user that disconnected
-    b. DONE - Remove user id from `users` array
-    c. DONE - If id === drawer, set `drawer = users[0]` (since newer users get pushed onto the array)
-    d. DONE - Update news feed with a message to the effect of `The drawer ${id} disconnected! The new drawer is ${drawer}`
-    e. Somehow recognize on the client when "you" are the new drawer, and enable drawing
-    (for now, don't go back to the first tab after opening a second, because the first tab can't draw for some reason)
-    ** QUESTION: do we let client hit the server every time for a "who am i" check, or store that knowledge on client? **
-
-2. If all guessers disconnect (so, all users minus the drawer), the drawing board should be disabled until someone connects again.
-    a. This requires task #1 to be done first, since that will update the users list.
-    b. Then, this will check the length of the list of users. 
+If all guessers disconnect (so, all users minus the drawer), the drawing board should be disabled until someone connects again.
+    a. Then, this will check the length of the list of users. 
         If length === 1 (only person in the room is the drawer), then disable canvas.
-    c. On new connect, enable canvas.
+    b. On new connect, enable canvas.
 */
 
 const http = require('http');
