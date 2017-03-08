@@ -1,16 +1,11 @@
 "use strict";
 
 let pictionary = () => {
-    
-    // Top-level variables
-    
     let socket = io();
     let drawing = false;
     
-    console.log('socket: ', socket);
-    
     let users, drawer, currentUserId, message;   // Track users and 'draw' permission
-    let canvas, context, guessBox;              // Track drawing
+    let canvas, canvasEnabled, context, guessBox;              // Track drawing
   
     // Note we don't have a variable to store the word the drawer is using to draw the picture.
     // Clients don't (shouldn't?) need to know that, so we'll ping the server with each guess to test if it's right.
@@ -24,8 +19,6 @@ let pictionary = () => {
     let newsFeedItems = [];
     let guesses = []; 
     
-    // Event listeners and functions - client
-
     let updateNewsFeed = (newsItems) => {
         let refreshedFeed = '';
         newsItems.forEach( (v, i) => {
@@ -74,6 +67,14 @@ let pictionary = () => {
     canvas[0].width = canvas[0].offsetWidth;
     canvas[0].height = canvas[0].offsetHeight;
     
+    let toggleCanvas = (setting) => {
+        if (setting == true) {
+            canvasEnabled = true;
+        } else {
+            canvasEnabled = false;
+        }
+    };
+    
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
         console.log('The canvas has detected a mousedown event');
@@ -121,8 +122,6 @@ let pictionary = () => {
     guessBox = $('#guess input');       // Should this be moved before the onKeyDown function expression?
     guessBox.on('keydown', logEnteredVal);
     
-    // Event listeners - server
-    
     socket.on('newClientConnect', (userObj) => {
         console.log('Event received: newClientConnect');
         users = userObj.users;
@@ -134,6 +133,11 @@ let pictionary = () => {
         updateUserList(users);
         newsFeedItems.push(message);
         updateNewsFeed(newsFeedItems);
+        
+        if (users.length > 1) {
+	        console.log('the users dot length property equals ', users.length);
+		    toggleCanvas(true);            
+        }
         
         console.log('userObj: ', userObj);
     });
@@ -148,6 +152,11 @@ let pictionary = () => {
         newsFeedItems.push(message);
         updateNewsFeed(newsFeedItems);
         
+	    if (users.length === 1) {   // Will always be at least the drawer in the users list
+	        console.log('the users dot length property equals 1, which means the drawer is the only one in the room');
+		    toggleCanvas(false);
+	    }
+        
         console.log('userObj: ', userObj);
         console.log('New drawer: ', drawer);
         console.log('Remind me, who am I? ', currentUserId);
@@ -155,11 +164,9 @@ let pictionary = () => {
     
     socket.on('chooseWord', (wordChoices) => {
         console.log('Event received: chooseWord');
-        console.log('word choices: ', wordChoices);
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
-        console.log('The word: ', word);
-        
+
         // Since the 'chooseWord' event is emitted after a guesser picks the right word and gets reset as drawer, 
         // this event should work for the initial drawer as well as all subsequent ones
         if (currentUserId == drawer) {

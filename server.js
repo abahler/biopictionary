@@ -3,9 +3,9 @@
 /*
 TODO: 
 If all guessers disconnect (so, all users minus the drawer), the drawing board should be disabled until someone connects again.
-    a. Then, this will check the length of the list of users. 
-        If length === 1 (only person in the room is the drawer), then disable canvas.
-    b. On new connect, enable canvas.
+    a. On disconnect, check the length of the list of users. 
+    b. If length === 1 (only person in the room is the drawer), then disable canvas.
+    c. On new connect, enable canvas.
 */
 
 const http = require('http');
@@ -85,11 +85,6 @@ io.on('connect', (socket) => {
             // Give new drawer the new word
             socket.emit('chooseWord', words);
         }
-    });
-    
-    // Test method
-    socket.on('whoAmI', () => {
-        socket.emit('whoYouAre', currentUserId);
     });
     
     socket.on('disconnect', () => {
