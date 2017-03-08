@@ -7,7 +7,9 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let users, drawer, mySocketId, message;     // Track users and 'draw' permission
+    console.log('socket: ', socket);
+    
+    let users, drawer, currentUserId, message;   // Track users and 'draw' permission
     let canvas, context, guessBox;              // Track drawing
   
     // Note we don't have a variable to store the word the drawer is using to draw the picture.
@@ -75,7 +77,7 @@ let pictionary = () => {
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
         console.log('The canvas has detected a mousedown event');
-        if (mySocketId == drawer) {
+        if (currentUserId == drawer) {
             drawing = true;
             // Grab the current offset
             let offset = canvas.offset();
@@ -95,7 +97,7 @@ let pictionary = () => {
     
     canvas.on('mouseup', () => {
         console.log('The canvas has detected a mouseup event');
-        if (mySocketId == drawer) {
+        if (currentUserId == drawer) {
             drawing = false;    
         }
     });        
@@ -103,7 +105,7 @@ let pictionary = () => {
     // Guessbox handlers
     let logEnteredVal = (e) => {
         // Don't let the drawer make guesses
-        if (mySocketId !== drawer) {
+        if (currentUserId !== drawer) {
             if (e.keyCode != 13) {
                 return;
             }  
@@ -125,7 +127,7 @@ let pictionary = () => {
         console.log('Event received: newClientConnect');
         users = userObj.users;
         drawer = userObj.drawer;
-        mySocketId = userObj.currentUserId;
+        currentUserId = userObj.currentUserId;
         message = userObj.message;
 
         // Render list of users
@@ -134,10 +136,6 @@ let pictionary = () => {
         updateNewsFeed(newsFeedItems);
         
         console.log('userObj: ', userObj);
-    });
-    
-    socket.on('whoYouAre', (id) => {
-        mySocketId = id;
     });
     
     socket.on('newClientDisconnect', (userObj) => {
@@ -152,7 +150,7 @@ let pictionary = () => {
         
         console.log('userObj: ', userObj);
         console.log('New drawer: ', drawer);
-        console.log('Remind me, who am I? ', mySocketId);
+        console.log('Remind me, who am I? ', currentUserId);
     });
     
     socket.on('chooseWord', (wordChoices) => {
@@ -164,7 +162,7 @@ let pictionary = () => {
         
         // Since the 'chooseWord' event is emitted after a guesser picks the right word and gets reset as drawer, 
         // this event should work for the initial drawer as well as all subsequent ones
-        if (mySocketId == drawer) {
+        if (currentUserId == drawer) {
             let txt = `<p>Your word is:<br><b>${word}</b></p>`;
             $('#currentWord').html(txt);
            
@@ -194,9 +192,6 @@ let pictionary = () => {
         newsFeedItems.push(`${drawer} made the correct guess! The word was <b>${res.correctWord}</b>. ${drawer}, you're up!`);
         updateNewsFeed(newsFeedItems);
     });
-    
-    // Emits on load
-    socket.emit('whoAmI');
     
 };
 
