@@ -68,14 +68,6 @@ let pictionary = () => {
     canvas[0].width = canvas[0].offsetWidth;
     canvas[0].height = canvas[0].offsetHeight;
     
-    let toggleCanvas = (setting) => {
-        if (setting == true) {
-            canvasEnabled = true;
-        } else {
-            canvasEnabled = false;
-        }
-    };
-    
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
         console.log('The canvas has detected a mousedown event');
@@ -142,11 +134,17 @@ let pictionary = () => {
         
         console.log('the users dot length property equals ', users.length);
         if (users.length > 1) {
-		    toggleCanvas(true);            
+            // TODO: send an event to the server, with TRUE as the value
+		    // toggleCanvas(true); 
+		    socket.emit('toggleCanvas', true);
         }
         
         console.log('userObj: ', userObj);
         console.log('Is the canvas enabled? ', canvasEnabled);
+    });
+    
+    socket.on('toggleCanvas', (setting) => {
+        canvasEnabled = setting;
     });
     
     socket.on('newClientDisconnect', (userObj) => {
@@ -161,10 +159,11 @@ let pictionary = () => {
         
 	    if (users.length === 1) {   // Will always be at least the drawer in the users list
 	        console.log('the users dot length property equals 1, which means the drawer is the only one in the room');
-		    toggleCanvas(false);
+		    socket.emit('toggleCanvas', false);
 	    }
         
         console.log('userObj: ', userObj);
+        console.log('canvasEnabled: ', canvasEnabled);
         console.log('New drawer: ', drawer);
         console.log('Remind me, who am I? ', currentUserId);
     });

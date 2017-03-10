@@ -21,6 +21,7 @@ const io = socket_io(server);
 let users = [];     // Keep a list of all currently connected users
 let drawer;
 let currentWord;
+let canvasEnabled = false;
 
 io.on('connect', (socket) => {
     let currentUserId = socket.id;
@@ -58,6 +59,11 @@ io.on('connect', (socket) => {
         console.log('Drawer connected');
         socket.emit('chooseWord', words);
     }
+    
+    socket.on('toggleCanvas', (setting) => {
+        canvasEnabled = setting;
+        io.emit('toggleCanvas', canvasEnabled);
+    });
     
     socket.on('draw', (position) => {
         console.log('Draw event received on server');  
