@@ -4,8 +4,9 @@ let pictionary = () => {
     let socket = io();
     let drawing = false;
     
-    let users, drawer, currentUserId, message;   // Track users and 'draw' permission
-    let canvas, canvasEnabled, context, guessBox;              // Track drawing
+    let users, drawer, currentUserId, message;      // Track users and 'draw' permission
+    let canvas, context, guessBox;   // Track drawing
+    let canvasEnabled = false;                      // Disabled on initial load
   
     // Note we don't have a variable to store the word the drawer is using to draw the picture.
     // Clients don't (shouldn't?) need to know that, so we'll ping the server with each guess to test if it's right.
@@ -78,27 +79,32 @@ let pictionary = () => {
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
         console.log('The canvas has detected a mousedown event');
-        if (currentUserId == drawer) {
-            drawing = true;
-            // Grab the current offset
-            let offset = canvas.offset();
-            
-            let newPosition = {
-                // The subtractions get us the position of the mouse relative to the top-left of the canvas
-                // Top left is {x; 0, y: 0}. 
-                // Bottom right is total width and heigh in pixels (for x and y, respectively).
-                x: ev.pageX - offset.left,
-                y: ev.pageY - offset.top
-            };
-            draw(newPosition);             
+        if (canvasEnabled == true) {
+            if (currentUserId == drawer) {
+                drawing = true;
+                // Grab the current offset
+                let offset = canvas.offset();
+                
+                let newPosition = {
+                    // The subtractions get us the position of the mouse relative to the top-left of the canvas
+                    // Top left is {x; 0, y: 0}. 
+                    // Bottom right is total width and heigh in pixels (for x and y, respectively).
+                    x: ev.pageX - offset.left,
+                    y: ev.pageY - offset.top
+                };
+                draw(newPosition);             
+            } else {
+                alert('You are not the drawer, but you can venture a guess in the box above.');
+            }            
         } else {
-            alert('You are not the drawer, but you can venture a guess in the box above.');
+            alert('The canvas is not enabled because you are only one in the room! Wait for some guessers to join.');
         }
+
     });
     
     canvas.on('mouseup', () => {
         console.log('The canvas has detected a mouseup event');
-        if (currentUserId == drawer) {
+        if (canvasEnabled == true && currentUserId == drawer) {
             drawing = false;    
         }
     });        
@@ -134,12 +140,13 @@ let pictionary = () => {
         newsFeedItems.push(message);
         updateNewsFeed(newsFeedItems);
         
+        console.log('the users dot length property equals ', users.length);
         if (users.length > 1) {
-	        console.log('the users dot length property equals ', users.length);
 		    toggleCanvas(true);            
         }
         
         console.log('userObj: ', userObj);
+        console.log('Is the canvas enabled? ', canvasEnabled);
     });
     
     socket.on('newClientDisconnect', (userObj) => {
