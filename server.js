@@ -25,9 +25,7 @@ let canvasEnabled = false;
 
 io.on('connect', (socket) => {
     let currentUserId = socket.id;
-    console.log('New client connected! Socket id: ', currentUserId);
     users.push(currentUserId);
-    console.log('Updated list of connected users: ', users);
     
     // We know we'll always have at least one client at index 0, even if it's the current socket.
     drawer = users[0];
@@ -56,7 +54,6 @@ io.on('connect', (socket) => {
     ];
     
     if (currentUserId == drawer) {
-        console.log('Drawer connected');
         socket.emit('chooseWord', words);
     }
     
@@ -66,7 +63,6 @@ io.on('connect', (socket) => {
     });
     
     socket.on('draw', (position) => {
-        console.log('Draw event received on server');  
         // Emit out to all other clients
         socket.broadcast.emit('draw', position);
     });
@@ -94,7 +90,6 @@ io.on('connect', (socket) => {
     });
     
     socket.on('disconnect', () => {
-        console.log(`User ${currentUserId} has disconnected`);
         
         // Rem ove current user from 'users' array
         let currentUserIndex = users.indexOf(currentUserId);
@@ -102,7 +97,6 @@ io.on('connect', (socket) => {
         
         let message = '';
         if (currentUserId == drawer) {
-            console.log('The disconnected user was also the drawer!');
             // Reset drawer to earliest connected user
             drawer = users[0];
             

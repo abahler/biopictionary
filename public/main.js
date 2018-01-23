@@ -70,7 +70,6 @@ let pictionary = () => {
     
     // Handler callback gets an event object
     canvas.on('mousedown', (ev) => {
-        console.log('The canvas has detected a mousedown event');
         if (canvasEnabled == true) {
             if (currentUserId == drawer) {
                 drawing = true;
@@ -95,7 +94,6 @@ let pictionary = () => {
     });
     
     canvas.on('mouseup', () => {
-        console.log('The canvas has detected a mouseup event');
         if (canvasEnabled == true && currentUserId == drawer) {
             drawing = false;    
         }
@@ -121,7 +119,6 @@ let pictionary = () => {
     guessBox.on('keydown', logEnteredVal);
     
     socket.on('newClientConnect', (userObj) => {
-        console.log('Event received: newClientConnect');
         users = userObj.users;
         drawer = userObj.drawer;
         currentUserId = userObj.currentUserId;
@@ -132,15 +129,12 @@ let pictionary = () => {
         newsFeedItems.push(message);
         updateNewsFeed(newsFeedItems);
         
-        console.log('the users dot length property equals ', users.length);
         if (users.length > 1) {
             // TODO: send an event to the server, with TRUE as the value
 		    // toggleCanvas(true); 
 		    socket.emit('toggleCanvas', true);
         }
         
-        console.log('userObj: ', userObj);
-        console.log('Is the canvas enabled? ', canvasEnabled);
     });
     
     socket.on('toggleCanvas', (setting) => {
@@ -148,7 +142,6 @@ let pictionary = () => {
     });
     
     socket.on('newClientDisconnect', (userObj) => {
-        console.log('Event received: newClientDisconnect');
         users = userObj.users;
         drawer = userObj.drawer;
         message = userObj.message;
@@ -158,18 +151,12 @@ let pictionary = () => {
         updateNewsFeed(newsFeedItems);
         
 	    if (users.length === 1) {   // Will always be at least the drawer in the users list
-	        console.log('the users dot length property equals 1, which means the drawer is the only one in the room');
 		    socket.emit('toggleCanvas', false);
 	    }
         
-        console.log('userObj: ', userObj);
-        console.log('canvasEnabled: ', canvasEnabled);
-        console.log('New drawer: ', drawer);
-        console.log('Remind me, who am I? ', currentUserId);
     });
     
     socket.on('chooseWord', (wordChoices) => {
-        console.log('Event received: chooseWord');
         let randomChoice = Math.round(Math.random() * wordChoices.length + 1);
         let word = wordChoices[randomChoice];
 
@@ -186,18 +173,15 @@ let pictionary = () => {
     
     // Listen for events emit from server.js
     socket.on('draw', (receivedPosition) => {
-        console.log('Event received: draw');
         draw(receivedPosition);
     });
     
     socket.on('guess', (theGuess) => {
-        console.log('Event received: guess');
         guesses.unshift(theGuess);
         updateGuesses(guesses);
     });
     
     socket.on('correctWordGuessed', (res) => {
-        console.log('Event received: correctWordGuessed');
         // Reset the drawer
         drawer = res.newDrawer;
 
